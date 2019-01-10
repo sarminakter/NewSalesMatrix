@@ -1,0 +1,171 @@
+﻿
+@{
+    ViewBag.Title = "Create";
+}
+<div ng-app="PermissionApp" ng-controller="PermissionCreate" class="row" ng-init="Init()">
+    <h4 class="text-left form-horizontal">Permission Management </h4><hr />
+    <div class="row">
+        <form class="form-horizontal" name="myForm" novalidate>
+            <div class="col-md-3">
+                <div class="form-group">
+                    <label class="control-label">Role<a class="requiredStar">*</a></label>
+                    <select class="form-control" ng-model="permission.Role" ng-options="v.Id as v.RoleName for v in RoleList" ng-change="CheckValidation(permission);LoadUserByRoleId(permission.Role)">
+                        <option value="">--- Select ---</option>
+                    </select>
+                    <span ng-show="ModuleValidation_msg" class="error"> Select Role </span>
+                </div>
+                <div class="form-group">
+                    <label class="control-label">User</label>
+                    <select class="form-control" ng-model="permission.User" ng-options="v.Id as v.UserName for v in UserList">
+                        <option value="">--- Select ---</option>
+                    </select>
+                    <span ng-show="ModuleValidation_msg" class="error"> Select User </span>
+                </div>
+                <div class="form-group">
+                    <label class="control-label">Module<a class="requiredStar">*</a></label>
+                    <select class="form-control" ng-model="permission.Module" ng-options="v.Id as v.ModuleName for v in ModuleList" ng-change="CheckValidation(permission);LoadResourceAndOperationByModuleId(permission.Module,permission.Role,permission.User)">
+                        <option value="">--- Select ---</option>
+                    </select>
+                    <span ng-show="ModuleValidation_msg" class="error"> Select Module </span>
+                </div>
+                <div class="form-group">
+                    <label class="control-label">Permission Type</label>
+                    <select class="form-control" ng-model="permission.PermissionType" ng-change="LoadResourceAndOperationByPermissionType(permission.PermissionType,permission.Module)">
+                        <option value="">--- Select ---</option>
+                        <option value="Resource">Resource</option>
+                        <option value="Operation">Operation</option>
+                    </select>
+                </div>
+            </div>
+            <div class="col-md-9">
+                <table class="table table-responsive">
+                    <thead>
+                        <tr>
+                            <th>Resource/Operation</th>
+                            <th>
+                                @*<input type="checkbox" id="create" ng-model="permission.IsCreateAll" />*@
+                                <label class="control-label" for="create">Create</label>
+                            </th>
+                            <th>
+                                @*<input type="checkbox" id="Read" ng-model="permission.IsReadAll" />*@
+                                <label class="control-label" for="Read">Read</label>
+                            </th>
+                            <th>
+                                @*<input type="checkbox" id="Edit" ng-model="permission.IsEditAll" />*@
+                                <label class="control-label" for="Edit">Edit</label>
+                            </th>
+                            <th>
+                                @*<input type="checkbox" id="Delete" ng-model="permission.IsDeleteAll" />*@
+                                <label class="control-label" for="Delete">Delete</label>
+                            </th>
+                            <th>
+                                @*<input type="checkbox" id="Print" ng-model="permission.IsPrintAll" />*@
+                                <label class="control-label" for="Print">Print</label>
+                            </th>
+                            <th>
+                                @*<input type="checkbox" id="Exclusive" ng-model="permission.IsExclusiveAll" />*@
+                                <label class="control-label" for="Exclusive">Exclusive</label>
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr ng-repeat="t in List |filter:{PermissionType:permission.PermissionType}">
+                            <td>{{t.Name}}</td>
+                            <td>
+                                <input type="checkbox" id="create" ng-checked="{{t.IsCreate}}" ng-model="t.IsCreate" ng-change="CallCreate(t,t.IsCreate,permission)" />
+                                <label class="control-label" >Create</label>
+                            </td>
+                            <td>
+                                <input type="checkbox" id="Read" ng-checked="{{t.IsRead}}" ng-model="t.IsRead" ng-change="CallRead(t,t.IsRead,permission)"/>
+                                <label class="control-label" >Read</label>
+                            </td>
+                            <td>
+                                <input type="checkbox" id="Edit" ng-checked="{{t.IsEdit}}" ng-model="t.IsEdit" ng-change="CallEdit(t,t.IsEdit,permission)"/>
+                                <label class="control-label" for="Edit">Edit</label>
+                            </td>
+                            <td>
+                                <input type="checkbox" id="Delete" ng-checked="{{t.IsDelete}}" ng-model="t.IsDelete" ng-change="CallDelete(t,t.IsDelete,permission)"/>
+                                <label class="control-label" for="Delete">Delete</label>
+                            </td>
+                            <td>
+                                <input type="checkbox" id="Print" ng-checked="{{t.IsPrint}}" ng-model="t.IsPrint" ng-change="CallPrint(t,t.IsPrint,permission)"/>
+                                <label class="control-label" for="Print">Print</label>
+                            </td>
+                            <td>
+                                <input type="checkbox" id="Exclusive" ng-checked="{{t.IsExclusive}}" ng-model="t.IsExclusive" ng-change="CallExclusive(t,t.IsExclusive,permission)"/>
+                                <label class="control-label" for="Exclusive">Exclusive</label>
+                            </td>
+                        </tr>
+                        @*<tr ng-repeat="r in ResourceByModuleList">
+                            <td>{{r.ResourceName}}</td>
+                            <td>
+                                <input type="checkbox" id="create" ng-model="$index_" ng-change="CallCreate(r.Id+'r',$index_)"/>
+                                <label class="control-label" >Create</label>
+                            </td>
+                            <td>
+                                <input type="checkbox" id="Read" ng-model="$index_1" ng-change="CallRead(r.Id+'r',$index_1)" />
+                                <label class="control-label">Read</label>
+                            </td>
+                            <td>
+                                <input type="checkbox" id="Edit" ng-model="$index_2" ng-change="CallEdit(r.Id+'r',$index_2)"/>
+                                <label class="control-label" for="Edit">Edit</label>
+                            </td>
+                            <td>
+                                <input type="checkbox" id="Delete" ng-model="$index_3" ng-change="CallDelete(r.Id+'r',$index_3)"/>
+                                <label class="control-label" for="Delete">Delete</label>
+                            </td>
+                            <td>
+                                <input type="checkbox" id="Print" ng-model="$index_4" ng-change="CallPrint(r.Id+'r',$index_4)"/>
+                                <label class="control-label" for="Print">Print</label>
+                            </td>
+                            <td>
+                                <input type="checkbox" id="Exclusive" ng-model="$index_5" ng-change="CallExclusive(r.Id+'r',$index_5)"/>
+                                <label class="control-label" for="Exclusive">Exclusive</label>
+                            </td>
+                        </tr>*@
+                    </tbody>
+                </table>
+                @*<div class="form-group">
+                        <label class="control-label">Name <a class="requiredStar">*</a></label>
+                        <input type="text" class="form-control" name="Name" ng-model="permission.Name" ng-keyup="CheckValidation(permission)" placeholder="Enter Name" autocomplete="off" required />
+                        <span ng-show="myForm.Name.$touched && myForm.Name.$error.required" class="error">Name Required</span>
+                    </div>
+                    <div class="form-group">
+                        <input type="checkbox" id="create" ng-model="permission.IsCreate" />
+                        <label class="control-label" for="create">Create</label>
+                    </div>
+                    <div class="form-group">
+                        <input type="checkbox" id="Read" ng-model="permission.IsRead" />
+                        <label class="control-label" for="Read">Read</label>
+                    </div>
+                    <div class="form-group">
+                        <input type="checkbox" id="Edit" ng-model="permission.IsEdit" />
+                        <label class="control-label" for="Edit">Edit</label>
+                    </div>
+                    <div class="form-group">
+                        <input type="checkbox" id="Delete" ng-model="permission.IsDelete" />
+                        <label class="control-label" for="Delete">Delete</label>
+                    </div>
+                    <div class="form-group">
+                        <input type="checkbox" id="Print" ng-model="permission.IsPrint" />
+                        <label class="control-label" for="Print">Print</label>
+                    </div>*@
+                <div class="row">
+                    <div class="col-md-4 pull-right">
+                        <div class="col-md-6">
+                            <input ng-disabled="buttonDisable" class="col-md-11 btn btn-sm btn-success" type="submit" ng-click="SaveAndUpdate(permission)" value="Save">
+                        </div>
+                        <div class="col-md-6">
+                            <input class="col-md-11 btn btn-sm btn-info" type="submit" ng-click="Reset(permission)" value="Reset">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+
+</div>
+@section OperationJS{
+    <script src="~/Application/Controller/Permission.js"></script>
+}
+

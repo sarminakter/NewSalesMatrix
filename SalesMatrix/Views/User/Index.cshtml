@@ -1,0 +1,78 @@
+﻿
+@{
+    ViewBag.Title = "Index";
+}
+
+
+<div ng-app="UserApp" ng-controller="UserList" class="row" ng-init="Init()">
+    <h4 class="text-center form-horizontal">User List</h4><hr />
+    <div class="row">
+        <div class="col-md-7">
+            @Html.ActionLink("Add New User", "Create", null, new { @class = "btn btn-sm btn-info" })
+        </div>
+        <div class="col-md-1">
+            <label class="checkbox-inline">
+                <input type="checkbox" ng-model="Active" value="true" ng-checked="Active" ng-click="ClickActiveInactive(Active)" /> Active
+            </label>
+        </div>
+        <div class="col-md-2">
+            <select ng-model="roleId" ng-options="value.RoleName as value.RoleName for value in RoleList" required name="roleId" class="form-control">
+                <option value="" selected="selected" label="-- Select All Role --"></option>
+            </select>
+        </div>
+        <div class="col-md-2">
+            <input type="text" class="form-control" ng-model="searchText" placeholder="Search.." />
+        </div>
+    </div><br />
+    <table class="table table-bordered table-striped table-responsive">
+        <thead>
+            <tr>
+                @*<td>SL</td>*@
+                <td>User</td>
+                <td>UserName</td>
+                <td>FullName</td>
+                <td>Email</td>
+                <td>Role</td>
+                @*<td>Status</td>*@
+                <td colspan="2">Action</td>
+            </tr>
+        </thead>
+        <tbody ng-repeat="item in pagedItems[currentPage] | filter:searchText | filter:{Status:Active} |filter:{Role: {RoleName:roleId}}">
+            <tr>
+                @*<td>{{$index+1}}</td>*@
+                <td>
+                    <span ng-if="item.Picture==null"><img height="80" width="80" src="~/Uploads/avatar-default.png" /></span>
+                    <span ng-if="item.Picture!=null"><img height="80" width="80" src="~/Uploads/{{item.Picture}}" /></span>
+                </td>
+                <td><a href="@Url.Action("Details","User")?id={{item.Id}}" class="DetailsClick">{{item.UserName}}</a></td>
+                <td>{{item.FullName}}</td>
+                <td>{{item.Email}}</td>
+                <td>{{item.Role.RoleName}}
+                    <span ng-if="userStatusHidden">
+                        <span ng-if="item.Status==true">Active</span>
+                        <span ng-if="item.Status!=true">Inactive</span>
+                    </span>
+                </td>
+                
+                <td>
+                    <a class="btn" href="@Url.Action("Edit","User")?id={{item.Id}}" title="Edit"><span class="glyphicon glyphicon-edit"></span></a>
+                    |
+                    <a class="btn"><span class="glyphicon glyphicon-retweet" ng-click="ResetPassword(item.Id)" title="Reset Password"></span></a>
+
+                </td>
+
+
+            </tr>
+        </tbody>
+    </table>
+    <div class="pagination pull-right">
+        <a href="" ng-click="prevPage()" ng-class="{disabled: currentPage == 0}">« Prev</a>
+        <a href="" ng-bind="n + 1" ng-repeat="n in range(pagedItems.length, currentPage, currentPage + gap)" ng-class="{active: n == currentPage}" ng-click="setPage()">1</a>
+        <a href="" ng-click="nextPage()" ng-class="{disabled: (currentPage) == pagedItems.length - 1}">Next »</a>
+    </div>
+</div>
+@section UserJS{
+    <script src="~/Application/Controller/User.js"></script>
+}
+
+

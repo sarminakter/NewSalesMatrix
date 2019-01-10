@@ -1,0 +1,81 @@
+﻿
+@{
+    ViewBag.Title = "Create";
+}
+
+<div ng-app="ModuleApp" ng-controller="ModuleCreate" class="row" ng-init="GetAllActive()">
+    <div class="row">
+        <div class="col-md-4">
+            <h4 class="text-center form-horizontal">Create Module</h4><hr />
+            <form class="form-horizontal" name="myForm" novalidate>
+                <div class="form-group">
+                    <label class="control-label">Module Name <a class="requiredStar">*</a></label>
+                    <input type="text" class="form-control" name="ModuleName" ng-model="module.ModuleName" ng-keyup="CheckName(module.ModuleName)" placeholder="Enter Module Name" autocomplete="off" required />
+                    <span ng-show="myForm.ModuleName.$touched && myForm.ModuleName.$error.required" style="color:darkred">Enter Module Name</span>
+                    <span ng-show="NameExist" style="color:darkred">This module already exist</span>
+                </div>
+                <div class="form-group">
+                    <label class="control-label">Description</label>
+                    <textarea type="textarea" rows="2" cols="50" name="Description" class="form-control" ng-model="module.Description" placeholder="Enter Module Description" autocomplete="off"></textarea>
+                </div>
+                <div class="form-group">
+                    <label class="control-label">Status <a class="requiredStar">*</a></label>
+                    <select ng-model="module_Status" required name="module_Status" class="form-control">
+                        <option value="true">Active</option>
+                        <option value="false">Inactive</option>
+                    </select>
+                    <span ng-show="myForm.module_Status.$error.required" style="color:darkred">Select Status</span>
+                </div>
+                <div class="form-group">
+                    <input ng-disabled="myForm.$invalid || buttonDisable" class="btn btn-sm btn-success pull-right" type="submit" ng-click="Create(module)" value="Submit">
+                </div>
+            </form>
+        </div>
+        <div class="col-md-8">
+            <h4 class="text-center form-horizontal">Module List</h4>
+            <div class="row">
+                <div class="col-md-6">                   
+                </div>
+                <div class="col-md-2">
+                    <label class="checkbox-inline">
+                        <input type="checkbox" ng-model="Active" value="true" ng-checked="Active" ng-click="ClickActiveInactive(Active)" /> Active
+                    </label>
+                </div>
+                <div class="col-md-4">
+                    <input type="text" class="form-control" ng-model="searchText" placeholder="Search.." />
+                </div>
+            </div><br />
+            <table class="table table-bordered table-striped table-responsive">
+                <thead>
+                    <tr>
+                        <td>SL</td>
+                        <td>Module</td>
+                        <td>Description</td>
+                        <td>Status</td>
+                    </tr>
+                </thead>
+                <tbody ng-repeat="item in pagedItems[currentPage] | filter:searchText | filter:{Status:Active}">
+                    <tr>
+                        <td>{{$index+1}}</td>
+                        @*<td><a href="@Url.Action("Details","Module")?id={{item.ModuleId}}" class="DetailsClick">{{item.ModuleName}}</a></td>*@
+                        <td>{{item.ModuleName}}</td>
+                        <td>{{item.Description}}</td>
+                        <td>
+                            <span ng-if="item.Status==true">Active</span>
+                            <span ng-if="item.Status==false">Inactive</span>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+            <div class="pagination pull-right">
+                <a href="" ng-click="prevPage()" ng-class="{disabled: currentPage == 0}">« Prev</a>
+                <a href="" ng-bind="n + 1" ng-repeat="n in range(pagedItems.length, currentPage, currentPage + gap)" ng-class="{active: n == currentPage}" ng-click="setPage()">1</a>
+                <a href="" ng-click="nextPage()" ng-class="{disabled: (currentPage) == pagedItems.length - 1}">Next »</a>
+            </div>
+        </div>
+    </div>
+
+</div>
+@section ModuleJS{
+    <script src="~/Application/Controller/Module.js"></script>
+}

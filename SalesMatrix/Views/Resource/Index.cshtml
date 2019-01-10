@@ -1,0 +1,156 @@
+﻿
+
+@{
+                /**/
+
+                ViewBag.Title = "Index";
+}
+
+
+<div ng-app="ResourceApp" ng-controller="ResourceList" class="row" ng-init="Init()">
+    <h4 class="text-center form-horizontal">Resource List</h4><hr />
+    <div class="row">
+        <div class="col-md-7">
+            @Html.ActionLink("Add New Resource", "Create", null, new { @class = "btn btn-sm btn-info" })
+        </div>
+        <div class="col-md-1">
+            <label class="checkbox-inline">
+                <input type="checkbox" ng-model="Active" value="true" ng-checked="Active" />Global
+            </label>
+        </div>
+        <div class="col-md-2">
+            <select ng-model="resourceType" ng-options="value.Name as value.Name for value in ResourceTypeList" required name="resourceType" class="form-control">
+                <option value="" selected="selected" label="-- Select All Role --"></option>
+            </select>
+        </div>
+        <div class="col-md-2">
+            <input type="text" class="form-control" ng-model="searchText" placeholder="Search.." />
+        </div>
+    </div><br />
+    @*<script type="text/ng-template" id="treeview">
+        <ul>
+            <li ng-repeat="items in items">
+                {{items.ResourceName}}
+                <div ng-if="items.length > '0'" ng-include="'treeview'" onload="items=items">
+                </div>
+            </li>
+        </ul>
+    </script>
+    <div>
+        <ul>
+            <li ng-repeat="items in ResourcetList">
+                {{items.ResourceName}}
+                <div ng-if="items.Resources.length > '0'" ng-include="'treeview'" onload="items=items.Resources">
+                </div>
+            </li>
+        </ul>
+    </div>*@
+    <table class="table table-bordered table-striped table-responsive">
+        <thead>
+            <tr>
+                <td>SL</td>
+                <td>Resource Type</td>
+                <td>Resource Name</td>
+                <td>Description</td>
+                <td>Parent</td>
+                <td>Sequence</td>
+                <td>Status</td>
+                <td>Action</td>
+            </tr>
+        </thead>
+        <tbody ng-repeat="item in pagedItems[currentPage] | filter:searchText |filter:{ResourceType:resourceType}  | filter:{IsGlobal:Active}">
+            <tr>
+                <td>{{$index+1}}</td>
+                <td>{{item.ResourceType}}</td>
+                <td>{{item.ResourceName}}</td>
+                <td>{{item.Description}}</td>
+                <td>{{item.ParentResource.ResourceName}}</td>
+                <td>{{item.Sequence}}<span ng-show="d">{{item.IsGlobal}}</span></td>
+                <td>
+                    <span ng-if="item.Status==true">Active</span>
+                    <span ng-if="item.Status!=true">Inactive</span>
+                </td>
+                <td>
+                    <a class="btn" ng-click="GetResourceEditInfo(item.Id,item.ResourceName)"
+                       title="Edit" data-toggle="modal" data-target="#ResourceEditModal"><span class="glyphicon glyphicon-edit"></span></a>
+                </td>
+
+
+            </tr>
+        </tbody>
+    </table>
+    <div class="pagination pull-right">
+        <a href="" ng-click="prevPage()" ng-class="{disabled: currentPage == 0}">« Prev</a>
+        <a href="" ng-bind="n + 1" ng-repeat="n in range(pagedItems.length, currentPage, currentPage + gap)" ng-class="{active: n == currentPage}" ng-click="setPage()">1</a>
+        <a href="" ng-click="nextPage()" ng-class="{disabled: (currentPage) == pagedItems.length - 1}">Next »</a>
+    </div>
+
+    <!-- Modal -->
+    <div id="ResourceEditModal" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">Eit Resource <b class="text-right">{{ResourceName}}</b></h4>
+                </div>
+                <div class="modal-body">
+                    <form name="myForm" novalidate>
+                        <div class="form-group">
+                            <label class="control-label">Resource Type <a class="requiredStar">*</a></label>
+                            <select class="form-control" ng-model="resource.ResourceType" ng-options="v.Name as v.Name for v in ResourceTypeList" ng-change="CheckValidation(resource)"></select>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label">Resource Name <a class="requiredStar">*</a></label>
+                            <input type="text" class="form-control" name="ResourceName" ng-model="resource.ResourceName" ng-keyup="CheckValidation(resource)" placeholder="Enter Resource Name" autocomplete="off" required />
+                            <span ng-show="myForm.ResourceName.$touched && myForm.ResourceName.$error.required" class="error">Resource Name Required</span>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label">Description <a class="requiredStar">*</a></label>
+                            <input type="text" class="form-control" name="Description" ng-model="resource.Description" ng-change="CheckValidation(resource)" placeholder="Enter Description" autocomplete="off" required />
+                            <span ng-show="myForm.Description.$touched && myForm.Description.$error.required" class="error">Description Required</span>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label">Parent<a class="requiredStar">*</a></label>
+                            <select class="form-control" ng-model="resource._Parent" ng-options="v.Id as v.ResourceName for v in ResourcetList" ng-change="CheckValidation(resource)"></select>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label">Sequence<a class="requiredStar">*</a></label>
+                            <input type="number" class="form-control" name="Sequence" ng-model="resource.Sequence" ng-change="CheckValidation(resource)" placeholder="Enter Sequence" autocomplete="off" required />
+                            <span ng-show="myForm.Sequence.$touched && myForm.Sequence.$error.required" class="error">Sequence Required</span>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label">Module <a class="requiredStar">*</a></label>
+                            <select ng-disabled="ModuleDisable" class="form-control" ng-model="ModuleId" ng-options="v.Id as v.ModuleName for v in ModuleList" ng-change="CheckValidation(resource)"></select>
+                            <span ng-show="ModuleValidation_msg" class="error"> Select Module </span>
+                        </div>
+                        <div class="form-group">
+                            <input type="checkbox" id="gResource" ng-model="IsGlobal" ng-true-value="'True'" ng-false-value="'False'" ng-change="ClickGlobal()" />
+                            <label class="control-label" for="gResource">Global Resource</label>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label">Status <a class="requiredStar">*</a></label>
+                            <select ng-model="resource_Status" required name="resource_Status" class="form-control">
+                                <option value="true">Active</option>
+                                <option value="false">Inactive</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            @Html.ActionLink("Go To Resource List", "Index", null, new { @class = "btn btn-sm btn-info" })
+                            @*<input ng-disabled="myForm.$invalid || buttonDisable" class="btn btn-sm btn-success pull-right" type="submit" ng-click="Create(user)" value="Submit">*@
+                            <input ng-disabled="buttonDisable" class="btn btn-sm btn-success pull-right" type="submit" ng-click="Edit(resource)" value="Submit">
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+@section ResourceJS{
+    <script src="~/Application/Controller/Resource.js"></script>
+
+}
+
+
+
+

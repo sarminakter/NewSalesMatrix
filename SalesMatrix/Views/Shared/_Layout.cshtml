@@ -1,0 +1,76 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SalesMatrix</title>
+    @Styles.Render("~/Content/css")
+    @Scripts.Render("~/bundles/modernizr")
+    <link href="~/Application/CSS/Site.css" rel="stylesheet" />
+    <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.5.0/css/font-awesome.min.css" rel="stylesheet" />
+    <script src="~/Scripts/angular.min.js"></script>
+    <script src="~/Scripts/ng-file-upload.min.js"></script>
+</head>
+<body>
+    @{
+        if (Session["User"] == null)
+        {
+            Response.Redirect("/Home/Login");
+        }
+
+    }
+    <div class="navbar navbar-inverse navbar-fixed-top container">
+        <div class="container">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                @Html.ActionLink("SalesMatrix", "Index", "Home", new { area = "" }, new { @class = "navbar-brand" })
+            </div>
+            <div class="navbar-collapse collapse">
+                <ul class="nav navbar-nav">
+                    <li>@Html.ActionLink("Home", "Index", "Home")</li>
+                    <li>@Html.ActionLink("Role", "Index", "Role")</li>
+                    <li>@Html.ActionLink("User", "Index", "User")</li>
+                    <li>@Html.ActionLink("Module", "Create", "Module")</li>
+                    <li>@Html.ActionLink("Resource", "Index", "Resource")</li>
+                    <li>@Html.ActionLink("Operation", "Index", "Operation")</li>
+                    <li>@Html.ActionLink("Permission", "Create", "Permission")</li>
+                    <li>@Html.ActionLink("Inventory Item", "Index", "Item")</li>
+                    <li>@Html.ActionLink("RetailCustomer", "Index", "RetailCustomer")</li>
+                    <li>@Html.ActionLink("Pricing", "Create", "Pricing")</li>
+                </ul>
+                @if (Session["User"] != null)
+                {
+                    <a href="@Url.Action("Logout", "Home")">Logout</a>
+                }
+
+
+            </div>
+        </div>
+    </div>
+    <div class="container body-content">
+        @RenderBody()
+        <hr />
+        <footer>
+            <p>&copy; @DateTime.Now.Year</p>
+        </footer>
+    </div>
+
+    @Scripts.Render("~/bundles/jquery")
+    @Scripts.Render("~/bundles/bootstrap")
+    @RenderSection("scripts", required: false)
+    @RenderSection("RoleJS", required: false)
+    @RenderSection("UserJS", required: false)
+    @RenderSection("ModuleJS", required: false)
+    @RenderSection("ResourceJS", required: false)
+    @RenderSection("OperationJS", required: false)
+    @RenderSection("PermissionJS", required: false)
+    @RenderSection("ItemJS", required: false)
+    @RenderSection("RetailCustomerJS", required: false)
+
+
+</body>
+</html>

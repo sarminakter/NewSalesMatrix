@@ -1,0 +1,61 @@
+﻿
+@{
+    ViewBag.Title = "Index";
+}
+
+<div ng-app="RoleApp" ng-controller="RoleList" class="row" ng-init="Init()">
+    <h4 class="text-center form-horizontal">Role List</h4><hr />
+    <div class="row">
+        <div class="col-md-6">
+            @Html.ActionLink("Add New Role", "Create", null, new { @class = "btn btn-sm btn-info" })
+        </div>
+        <div class="col-md-3">
+        </div>
+        <div class="col-md-1">
+            <label class="checkbox-inline">
+                <input type="checkbox" ng-model="Active" value="true" ng-checked="Active" ng-click="ClickActiveInactive(Active)" /> Active
+            </label>
+        </div>
+        <div class="col-md-2">
+            <input type="text" class="form-control" ng-model="searchText" placeholder="Search.." />
+        </div>
+    </div><br />
+    <table class="table table-bordered table-striped table-responsive">
+        <thead>
+            <tr>
+                @*<td>SL</td>*@
+                <td>Role</td>
+                <td>Description</td>
+                <td>Status</td>
+                <td>Users</td>
+                <td>Action</td>
+            </tr>
+        </thead>
+        <tbody ng-repeat="item in pagedItems[currentPage] | filter:searchText | filter:{Status:Active}">
+            <tr>
+                @*<td>{{$index+1}}</td>*@
+                <td><a href="@Url.Action("Details","Role")?id={{item.Id}}" class="DetailsClick">{{item.RoleName}}</a></td>
+                <td>{{item.Description}}</td>
+                <td>
+                    <span ng-if="item.Status==true">Active</span>
+                    <span ng-if="item.Status==false">Inactive</span>
+                </td>
+                <td>
+                    <span ng-if="item.Users.length==0">0</span>
+                    <span ng-if="item.Users.length!=0">{{item.Users.length}}</span>
+                </td>
+                <td>
+                    <a class="btn" href="@Url.Action("Edit","Role")?id={{item.Id}}" title="Edit"><span class="glyphicon glyphicon-edit"></span></a>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <div class="pagination pull-right">
+        <a href="" ng-click="prevPage()" ng-class="{disabled: currentPage == 0}">« Prev</a>
+        <a href="" ng-bind="n + 1" ng-repeat="n in range(pagedItems.length, currentPage, currentPage + gap)" ng-class="{active: n == currentPage}" ng-click="setPage()">1</a>
+        <a href="" ng-click="nextPage()" ng-class="{disabled: (currentPage) == pagedItems.length - 1}">Next »</a>
+    </div>
+</div>
+@section RoleJS{
+    <script src="~/Application/Controller/Role.js"></script>
+}

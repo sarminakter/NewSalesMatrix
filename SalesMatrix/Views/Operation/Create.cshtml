@@ -1,0 +1,53 @@
+﻿
+@{
+    ViewBag.Title = "Create";
+}
+<div ng-app="OperationApp" ng-controller="OperationCreate" class="row" ng-init="Init()">
+    <h4 class="text-center form-horizontal">Operation Create </h4><hr />
+    <div class="row">
+        <div class="col-md-4"></div>
+        <div class="col-md-4">
+            <form class="form-horizontal" name="myForm" novalidate>
+                <div class="form-group">
+                    <label class="control-label">Operation Name <a class="requiredStar">*</a></label>
+                    <input type="text" class="form-control" name="OperationName" ng-model="operation.OperationName" ng-keyup="CheckValidation(operation)" placeholder="Enter Operation Name" autocomplete="off" required />
+                    <span ng-show="myForm.OperationName.$touched && myForm.OperationName.$error.required" class="error">Operation Name Required</span>
+                </div>
+                <div class="form-group">
+                    <label class="control-label">Description <a class="requiredStar">*</a></label>
+                    <input type="text" class="form-control" name="Description" ng-model="operation.Description" ng-change="CheckValidation(operation)" placeholder="Enter Description" autocomplete="off" required />
+                    <span ng-show="myForm.Description.$touched && myForm.Description.$error.required" class="error">Description Required</span>
+                </div>
+                <div class="form-group">
+                    <label class="control-label">Module <a class="requiredStar">*</a></label>
+                    <select ng-disabled="ModuleDisable" class="form-control" ng-model="operation._Module" ng-options="v.Id as v.ModuleName for v in ModuleList" ng-change="CheckValidation(operation)">
+                        <option value="">--- Select Module ---</option>
+                    </select>
+                    <span ng-show="ModuleValidation_msg" class="error"> Select Module </span>
+                </div>
+                <div class="form-group">
+                    <input type="checkbox" id="gResource" ng-model="IsGlobal" ng-true-value="'True'" ng-false-value="'False'" ng-change="ClickGlobal();CheckValidation(operation)" />
+                    <label class="control-label" for="gResource">Global Operation</label>
+                </div>
+                <div class="form-group">
+                    <label class="control-label">Status <a class="requiredStar">*</a></label>
+                    <select ng-model="operation_Status" required name="operation_Status" class="form-control">
+                        <option value="true">Active</option>
+                        <option value="false">Inactive</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    @Html.ActionLink("Go To Operation List", "Index", null, new { @class = "btn btn-sm btn-info" })
+                    @*<input ng-disabled="myForm.$invalid || buttonDisable" class="btn btn-sm btn-success pull-right" type="submit" ng-click="Create(user)" value="Submit">*@
+                    <input ng-disabled="buttonDisable" class="btn btn-sm btn-success pull-right" type="submit" ng-click="Create(operation)" value="Submit">
+                </div>
+            </form>
+        </div>
+        <div class="col-md-4"></div>
+    </div>
+
+</div>
+@section OperationJS{
+    <script src="~/Application/Controller/Operation.js"></script>
+}
+

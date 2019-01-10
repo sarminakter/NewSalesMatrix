@@ -1,0 +1,183 @@
+﻿@{
+    /**/
+
+    ViewBag.Title = "Index";
+}
+
+<style>
+    .panel-title > a:before {
+        float: left !important;
+        font-family: FontAwesome;
+        content: "\f068";
+        padding-right: 5px;
+    }
+
+    .panel-title > a.collapsed:before {
+        float: left !important;
+        content: "\f067";
+    }
+
+    .panel-title > a:hover,
+    .panel-title > a:active,
+    .panel-title > a:focus {
+        text-decoration: none;
+    }
+</style>
+<div ng-app="ItemApp" ng-controller="ItemList" class="row" ng-init="Init()">
+    <h4 class="text-center form-horizontal">Inventory Item List</h4><hr />
+    <div class="row">
+        <div class="col-md-8">
+            @Html.ActionLink("Add New Item", "Create", null, new { @class = "btn btn-sm btn-info" })
+        </div>
+        <div class="col-md-1">
+            <label class="checkbox-inline">
+                <input type="checkbox" ng-model="TreeView" ng-checked="TreeView" /> TreeView
+            </label>
+        </div>
+        <div class="col-md-1">
+            <label class="checkbox-inline">
+                <input type="checkbox" ng-model="Active" value="true" ng-checked="Active" ng-click="ClickActiveInactive(Active)" /> Active
+            </label>
+        </div>
+        <div class="col-md-2">
+            <input type="text" class="form-control" ng-model="searchText" placeholder="Search.." />
+        </div>
+    </div><br />
+    <div ng-show="TreeView">
+        <script type="text/ng-template" id="treeview">
+            <ul style="list-style-type:none">
+                <li ng-repeat="items in items">
+                    <h4 class="btn btn-sm">
+                        <span>{{items.ItemName}}</span>
+                    </h4>
+                    <div ng-if="items.Items.length > '0'" ng-include="'treeview'" onload="items=items.Items">
+                    </div>
+                </li>
+            </ul>
+        </script>
+        <div>
+            <ul style="list-style-type:none">
+                <li ng-repeat="items in ItemList">
+                    <h4 class="panel-title">
+                        <a class="panel-title" data-toggle="collapse" href="#{{items.Id}}">{{items.ItemName}}</a>
+                    </h4>
+                    <div id="{{items.Id}}" class="panel-collapse collapse in">
+                        <div ng-if="items.Items.length > '0'" ng-include="'treeview'" onload="items=items.Items">
+                        </div>
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <table class="table table-bordered table-striped table-responsive">
+        <thead>
+            <tr>
+                <td>SL</td>
+                <td>Image</td>
+                <td>Item Name</td>
+                <td>Description</td>
+                <td>Parent Item</td>
+                <td>Display Sequence</td>
+                <td>Recorder Level</td>
+                <td>Actual Item</td>
+                <td>Status</td>
+                <td>Action</td>
+            </tr>
+        </thead>
+        <tbody ng-repeat="item in pagedItems[currentPage] | filter:searchText | filter:{Status:Active}">
+            <tr>
+                <td>{{$index+1}}</td>
+                <td>
+                    <span ng-if="item.Picture!=null"><img height="80" width="80" src="~/Uploads/{{item.Picture}}" /></span>
+                </td>
+                <td>{{item.ItemName}}</td>
+                <td>{{item.Description}}</td>
+                <td>{{item.ParentItem.ItemName}}</td>
+                <td>{{item.DisplaySequence}}</td>
+                <td>{{item.RecorderLevel}}</td>
+                <td>{{item.IsActualItem}}</td>
+                <td>
+                    <span ng-if="item.Status==true">Active</span>
+                    <span ng-if="item.Status==false">Inactive</span>
+                </td>
+                <td>
+                    <a class="btn" ng-click="GetItemEditInfo(item.Id,item.ItemName)"
+                       title="Edit" data-toggle="modal" data-target="#ItemEditModal"><span class="glyphicon glyphicon-edit"></span></a>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <div class="pagination pull-right">
+        <a href="" ng-click="prevPage()" ng-class="{disabled: currentPage == 0}">« Prev</a>
+        <a href="" ng-bind="n + 1" ng-repeat="n in range(pagedItems.length, currentPage, currentPage + gap)" ng-class="{active: n == currentPage}" ng-click="setPage()">1</a>
+        <a href="" ng-click="nextPage()" ng-class="{disabled: (currentPage) == pagedItems.length - 1}">Next »</a>
+    </div>
+
+    <!-- Modal -->
+    <div id="ItemEditModal" class="modal fade" role="dialog" ng-init="GetAllNotActualItem()">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">Eit Item <b class="text-right">{{ItemName}}</b></h4>
+                </div>
+                <div class="modal-body">
+                    <form name="myForm" novalidate>
+                        <div class="form-group">
+                            <label class="control-label">Item Name <a class="requiredStar">*</a></label>
+                            <input type="text" class="form-control" name="ItemName" ng-model="item.ItemName" ng-keyup="CheckValidation(item)" placeholder="Enter Name" autocomplete="off" required />
+                            <span ng-show="myForm.ItemName.$touched && myForm.ItemName.$error.required" class="error">Item Name Required</span>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label">Description </label>
+                            <input type="text" class="form-control" name="Description" ng-model="item.Description" ng-keyup="CheckValidation(item)" placeholder="Enter Name" autocomplete="off" required />
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label">Category/Subcategory/Parent<a class="requiredStar">*</a></label>
+                            <select class="form-control" ng-model="item.ParentItemId" ng-options="v.Id as v.ItemName for v in ParentItemList" ng-change="CheckValidation(item)">
+                                <option value="">--- Select Category/Subcategory/Parent ---</option>
+                            </select>
+                            <span ng-show="CategoryValidation_msg" class="error"> Select Category/Subcategory/Parent </span>
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label">Display Sequence</label>
+                            <input type="text" class="form-control" name="DisplaySequence" ng-model="item.DisplaySequence" ng-keyup="CheckValidation(item)" placeholder="Display Sequence" autocomplete="off" required />
+                        </div>
+                        <div class="form-group">
+                            <label class="control-label">Recorder Level</label>
+                            <input type="text" class="form-control" name="RecorderLevel" ng-model="item.RecorderLevel" ng-keyup="CheckValidation(item)" placeholder="Recorder Level" autocomplete="off" required />
+                        </div>
+                        <div class="form-group">
+                            <input type="checkbox" id="ActualItem" ng-model="item.IsActualItem" style="cursor:pointer" />
+                            <label class="control-label" for="ActualItem" style="cursor:pointer">Actual Item</label>
+                        </div>
+                        @*<div class="form-group">
+                            <label class="control-label">Picture </label>
+                            <input type="file" class="form-control" ngf-select="UploadFiles($files)" />
+                        </div>*@
+                        <div class="form-group">
+                            <label class="control-label">Status <a class="requiredStar">*</a></label>
+                            <select ng-model="item_Status" required name="item_Status" class="form-control">
+                                <option value="true">Active</option>
+                                <option value="false">Inactive</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            @Html.ActionLink("Go To Item List", "Index", null, new { @class = "btn btn-sm btn-info" })
+                            <input ng-disabled="buttonDisable" class="btn btn-sm btn-success pull-right" type="submit" ng-click="Edit(item)" value="Submit">
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+@section ItemJS{
+    <script src="~/Application/Controller/Item.js"></script>
+}
+
+
+
+

@@ -1,0 +1,71 @@
+﻿
+@{
+    ViewBag.Title = "Create";
+}
+<div ng-app="UserApp" ng-controller="UserCreate" class="row" ng-init="Init()">
+    <h4 class="text-center form-horizontal">User Create </h4><hr />
+    <div class="row">
+        <div class="col-md-4"></div>
+        <div class="col-md-4">
+            <form class="form-horizontal" name="myForm" novalidate>
+                <div class="form-group">
+                    <label class="control-label">User Name <a class="requiredStar">*</a></label>
+                    <input type="text" class="form-control" name="UserName" ng-model="user.UserName" ng-keyup="CheckUserName(user.UserName);CheckValidation(user)" placeholder="Enter User Name" autocomplete="off" required />
+                    <span ng-show="myForm.UserName.$touched && myForm.UserName.$error.required" class="error">User Name Required</span>
+                    <span ng-show="errorMsgUserNameExist" class="error">This username already exist</span>
+                </div>
+                <div class="form-group">
+                    <label class="control-label">Full Name <a class="requiredStar">*</a></label>
+                    <input type="text" class="form-control" name="FullName" ng-model="user.FullName" ng-keyup="CheckValidation(user)" placeholder="Enter Full Name" autocomplete="off" required />
+                    <span ng-show="myForm.FullName.$touched && myForm.FullName.$error.required" class="error">Full Name Required</span>
+                </div>
+                <div class="form-group">
+                    <label class="control-label">Email <a class="requiredStar">*</a></label>
+                    <input type="email" class="form-control" name="Email" ng-model="user.Email" placeholder="Enter Email Address" ng-keyup="CheckValidation(user)" autocomplete="off" required />
+                    <span class="error" ng-show="myForm.Email.$touched && myForm.Email.$error.required">Email Address Required</span>
+                    <span class="error" ng-show="myForm.Email.$error.email">Not valid email</span>
+                </div>
+                <div class="form-group">
+                    <label class="control-label">Password <a class="requiredStar">*</a></label>
+                    <input type="password" class="form-control" name="Password" ng-model="user.Password" ng-keyup="ComparePassword(user.Password,user.ConfirmPassword);CheckValidation(user)" placeholder="Enter Password" autocomplete="off" required />
+                    <span class="error" ng-show="myForm.Password.$touched && myForm.Password.$error.required">Password Required</span>
+                </div>
+                <div class="form-group">
+                    <label class="control-label">Confirm Password <a class="requiredStar">*</a></label>
+                    <input type="password" class="form-control" name="ConfirmPassword" ng-model="user.ConfirmPassword" ng-keyup="ComparePassword(user.Password,user.ConfirmPassword);CheckValidation(user)" placeholder="Enter Confirm Password" autocomplete="off" required />
+                    <span class="error" ng-show="myForm.ConfirmPassword.$touched && myForm.ConfirmPassword.$error.required">ConfirmPassword Required</span>
+                    <span class="error" ng-show="UnMatchedPassword">Password doesn't match</span>
+                </div>
+                <div class="form-group">
+                    <label class="control-label">Role <a class="requiredStar">*</a></label>
+                    <select ng-model="user.RoleId" ng-options="value.Id as value.RoleName for value in Role" required class="form-control" ng-change="CheckValidation(user)">
+                        <option value="" selected="selected" label="-- Select Role --"></option>
+                    </select>
+                    <span class="error" ng-show="errorMsgInvalidRole">Role Required</span>
+                </div>
+                <div class="form-group">
+                    <label class="control-label">Picture </label>
+                    <input type="file" class="form-control" ngf-select="UploadFiles($files)"/>
+                </div>
+                <div class="form-group">
+                    <label class="control-label">Status <a class="requiredStar">*</a></label>
+                    <select ng-model="user_Status" required name="user_Status" class="form-control">
+                        <option value="true">Active</option>
+                        <option value="false">Inactive</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    @Html.ActionLink("Go To Role List", "Index", null, new { @class = "btn btn-sm btn-info" })
+                    @*<input ng-disabled="myForm.$invalid || buttonDisable" class="btn btn-sm btn-success pull-right" type="submit" ng-click="Create(user)" value="Submit">*@
+                    <input ng-disabled="buttonDisable" class="btn btn-sm btn-success pull-right" type="submit" ng-click="Create(user)" value="Submit">
+                </div>
+            </form>
+        </div>
+        <div class="col-md-4"></div>
+    </div>
+
+</div>
+@section UserJS{
+    <script src="~/Application/Controller/User.js"></script>
+}
+

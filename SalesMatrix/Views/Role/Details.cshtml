@@ -1,0 +1,108 @@
+﻿@model SalesMatrix.Entity.Models.Role
+@{
+    ViewBag.Title = "Details";
+}
+<div class="row" ng-app="RoleApp" ng-controller="RoleDetails">
+
+    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12">
+        <div class="panel panel-info">
+            <div class="panel-heading">Role Detail</div>
+            <div class="panel-body">
+                <div class="row">
+                    <div class="col-md-4">Role Name</div>
+                    <div class="col-md-8">@Model.RoleName</div>
+                </div>
+                <div class="row">
+                    <div class="col-md-4">Description</div>
+                    <div class="col-md-8">@Model.Description</div>
+                </div>
+                <div class="row">
+                    <div class="col-md-4">Status</div>
+                    <div class="col-md-8">
+                        @{
+                            if (Model.Status == true)
+                            {
+                                @Html.Raw("Active")
+                            }
+                            else
+                            {
+                                @Html.Raw("Inactive")
+                            }
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="panel panel-info">
+            <div class="panel-heading">Audit Information</div>
+            <div class="panel-body">
+                <div class="row">
+                    <div class="col-md-4">Created By</div>
+                    <div class="col-md-8">@Model.CreatedBy</div>
+                </div>
+                <div class="row">
+                    <div class="col-md-4">Created Date</div>
+                    <div class="col-md-8">@Model.CreatedDate</div>
+                </div>
+                <div class="row">
+                    <div class="col-md-4">Created From</div>
+                    <div class="col-md-8">@Model.CreatedFrom</div>
+                </div>
+                <div class="row">
+                    <div class="col-md-4">Modified By</div>
+                    <div class="col-md-8">@Model.ModifiedBy</div>
+                </div>
+                <div class="row">
+                    <div class="col-md-4">Modified Date</div>
+                    <div class="col-md-8">@Model.ModifiedDate</div>
+                </div>
+                <div class="row">
+                    <div class="col-md-4">Modified From</div>
+                    <div class="col-md-8">@Model.ModifiedFrom</div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-4">
+                <a href="@Url.Action("Edit","Role")?id=@Model.Id" class="DetailsClick"><span class="btn btn-sm btn-warning">Edit</span></a>
+                @Html.ActionLink("Go To Role List", "Index", null, new { @class = "btn btn-sm btn-info" })
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-6 col-md-6 col-sm-6 col-xs-12" ng-init="GetAllUserByRoleId(@Model.Id)">
+        <div class="panel panel-info">
+            <div class="panel-heading">List Of Users</div>
+            <div class="panel-heading row" ng-repeat="user in UserList" style="margin:5px">
+                <div class="col-md-4"><a href="@Url.Action("Details", "User")?id={{user.Id}}" class="DetailsClick">{{user.FullName}}</a></div>
+                <div class="col-md-4">{{user.Email}}</div>
+                <div class="col-md-4">
+                    <span ng-if="user.Status==true">Active</span>
+                    <span ng-if="user.Status==false">Inactive</span>
+                </div>
+            </div>
+            @*<div class="panel-body">
+                <div class="row">
+                    <div class="col-md-4">User Name</div>
+                    <div class="col-md-8">{{user.UserName}}</div>
+                </div>
+                <div class="row">
+                    <div class="col-md-4">Full Name</div>
+                    <div class="col-md-8"></div>
+                </div>
+                <div class="row">
+                    <div class="col-md-4">Email</div>
+                    <div class="col-md-8"></div>
+                </div>
+                <div class="row">
+                    <div class="col-md-4">Status</div>
+                    <div class="col-md-8"></div>
+                </div>
+            </div>*@
+        </div>
+
+    </div>
+</div>
+@section RoleJS{
+    <script src="~/Application/Controller/Role.js"></script>
+}
